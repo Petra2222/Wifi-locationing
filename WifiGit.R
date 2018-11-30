@@ -15,9 +15,10 @@ DataTraining <- read_csv("trainingData.csv")
 DataTraining$FLOOR <- as.factor(DataTraining$FLOOR)
 DataTraining$BUILDINGID <- as.factor(DataTraining$BUILDINGID)
 
-# converting TIMESTAP from unix time to more suitable one (even if this variable is yet not needed)
+# converting TIMESTAMP from unix time to more suitable one (even if this variable is yet not needed)
 DataTraining <- mutate(DataTraining, Time = TIMESTAMP)
 DataTraining$Time <- as.POSIXct(DataTraining$Time, origin = "1970-01-01")
+
 
 #### Data Explorations / vizualizations ####
 
