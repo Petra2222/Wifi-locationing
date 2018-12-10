@@ -15,7 +15,7 @@ DataValidation <- read.csv("validationData.csv")
 
 
 
-###------------------ TRAINING SET -------------------------
+#------------------ TRAINING SET -------------------------
 
 
 # DATA CLEANING ####
@@ -45,11 +45,26 @@ DataTraining[,WAPS] <- sapply(DataTraining[,WAPS], function(x) ifelse(x==100,-12
 # Teatment of - Near Zero Variance WAPS
 WAPS_NZV_DT <- nearZeroVar (DataTraining[,1:520], saveMetrics=TRUE)
 
-DataTraining <- DataTraining [-which(WAPS_NZV_Train$zeroVar==TRUE)]   # 529 -> 475 variables
+DataTraining <- DataTraining [-which(WAPS_NZV_DT$zeroVar==TRUE)]   # 529 -> 475 variables
 
 #Deleting all rows with zero Variance
-DataTraining2 <- DataTraining1[-as.numeric(which(apply(DataTraining1[,1:465], 1, var) == 0)),] 
+DataTraining1 <- DataTraining[-as.numeric(which(apply(DataTraining[,1:465], 1, var) == 0)),] 
 # 19227 observations
+
+
+
+#------------------ Feature engineering -------------------------
+
+# New variable - HighestWAP
+
+DataTraining1 <- DataTraining1 %>% mutate (HighestWAP=NA)
+
+WAPS <- grep("WAP", names(DataTraining1), value=T)
+
+DataTraining1 <- DataTraining1 %>% mutate (HighestWAP=colnames(DataTraining1[WAPS]) [apply(DataTraining1[WAPS],1,which.max)])
+
+DataTraining1$HighestWAP <- as.factor(DataTraining1$HighestWAP)
+
 
 
 
@@ -79,4 +94,4 @@ plot_ly(Building1_11, x = ~LATITUDE, y = ~LONGITUDE, z = ~FLOOR, type = 'scatter
 
 
 
-str(DataTraining[,521:530])
+
