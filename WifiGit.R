@@ -4,6 +4,7 @@ library(dplyr)
 library(plyr)
 library(caTools)
 library(caret)
+library(reshape)
 # visualizations
 library(plotly)
 library(rgl)
@@ -22,7 +23,7 @@ DataValidation <- read.csv("validationData.csv")
 
 
 # Removing repeated rows in DataTraining             
-DataTraining <- distinct(DataTraining)              #<- 19937 to 19300
+DataTraining <- distinct(DataTraining)              # 19937 to 19300
 
 # Data Type Conversions into factor/datetime
 factors<-c("FLOOR", "BUILDINGID", "RELATIVEPOSITION", "USERID", "PHONEID")
@@ -102,18 +103,48 @@ B3WAPS <- B3WAPS [,-c(which(DELB3==TRUE))] # change from 476 to 203 variables
 
 
 
-#### Data Explorations / vizualizations ####
+#------------------ Data Explorations / vizualizations -------------------------
+# part of Exploratory analysis
 
-# dividing the 3 buildings
 # Building 1, only 2 users in Building 1!
 Building1 <- filter(DataTraining, BUILDINGID == 0)
+# unique(Building1$USERID)
 Building1_11 <- filter(Building1, USERID == 11)
 Building1_1 <- filter(Building1, USERID == 1)
-# Building 2
-Building2 <- filter(DataTraining, BUILDINGID == 1)
-# Building 3
-Building3 <- filter(DataTraining, BUILDINGID == 2)
 
+
+# Users (2x) in Building 1
+ ggplot(data = Building1) + geom_point(aes(x=LONGITUDE, y= LATITUDE, color=USERID)) + 
+    facet_grid(. ~ FLOOR)
+ 
+ 
+ # Number of Detected WAPS
+ 
+ WAPSDT1 <- DataTraining1[,1:465]
+ totalWAPS <- c(seq(from = 0, to = 0, length.out = nrow(WAPSDT1)))
+ 
+ for(i in 1:nrow(WAPSDT1)){
+   da <-  WAPSDT1[i,] != -120
+   da <- c(da)
+   totalWAPS[i] <- length(WAPSDT1[i,da])
+ }
+ 
+hist(totalWAPS, breaks = 50, main= "Breaks = 50", xlab = "Number of detected WAPS")
+ 
+
+ # WAPS signal strength distribution 
+ 
+ # melting
+ training_melt <- melt(WAPSDT1)
+ # excluding NA (-120)
+ training_melt <- subset(training_melt, value != -120)
+ ggplot(training_melt, aes(value)) + geom_histogram(binwidth = 1) 
+
+
+ # Most frequent USER
+ plot(DataTraining1$USERID, xlab="USER NUMBER", ylab="frequency", 
+      main="Most frequent User", col="blue")
+  
 
 # 3D Scatterplot, rgl library
 plot3d(DataTraining$LONGITUDE, DataTraining$LATITUDE, DataTraining$FLOOR, col = "blue", size= 3)
