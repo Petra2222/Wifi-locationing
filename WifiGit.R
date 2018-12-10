@@ -8,16 +8,53 @@ library(caret)
 library(plotly)
 library(rgl)
 
+# Data Loading
 
 DataTraining <- read_csv("trainingData.csv")
+DataValidation <- read.csv("validationData.csv")
 
-# Data Type Conversions (for now / FLOOR and BUILDIND ID are the most pressing ones)
-DataTraining$FLOOR <- as.factor(DataTraining$FLOOR)
-DataTraining$BUILDINGID <- as.factor(DataTraining$BUILDINGID)
+
+
+###------------------ TRAINING SET -------------------------
+
+
+# DATA CLEANING ####
+
+
+# Removing repeated rows in DataTraining             
+DataTraining <- distinct(DataTraining)              #<- 19937 to 19300
+
+# Data Type Conversions into factor/datetime
+factors<-c("FLOOR", "BUILDINGID", "RELATIVEPOSITION", "USERID", "PHONEID")
+DataTraining[,factors] <-lapply (DataTraining[,factors], as.factor)
+rm(factors)
+
 
 # converting TIMESTAMP from unix time to more suitable one (even if this variable is yet not needed)
 DataTraining <- mutate(DataTraining, Time = TIMESTAMP)
 DataTraining$Time <- as.POSIXct(DataTraining$Time, origin = "1970-01-01")
+
+
+# Change value of WAPS = 100 to WAPS = -120
+WAPS<-grep("WAP", names(DataTraining), value=T)
+DataTraining[,WAPS] <- sapply(DataTraining[,WAPS], function(x) ifelse(x==100,-120,x))
+# (easier version)
+# DataTraining[DataTraining==100]<- -120
+
+
+# Teatment of - Near Zero Variance WAPS
+WAPS_NZV_DT <- nearZeroVar (DataTraining[,1:520], saveMetrics=TRUE)
+
+DataTraining <- DataTraining [-which(WAPS_NZV_Train$zeroVar==TRUE)]   # 529 -> 475 variables
+
+#Deleting all rows with zero Variance
+DataTraining2 <- DataTraining1[-as.numeric(which(apply(DataTraining1[,1:465], 1, var) == 0)),] 
+# 19227 observations
+
+
+
+
+
 
 
 #### Data Explorations / vizualizations ####
