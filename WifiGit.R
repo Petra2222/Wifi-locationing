@@ -94,15 +94,6 @@ DELB3 <- apply (B3WAPS, 2, function(x) length(unique(x))==1)
 B3WAPS <- B3WAPS [,-c(which(DELB3==TRUE))] # change from 476 to 203 variables
 
 
-
-
-
-
-
-
-
-
-
 #------------------ Data Explorations / vizualizations -------------------------
 # part of Exploratory analysis
 
@@ -116,6 +107,7 @@ Building1_1 <- filter(Building1, USERID == 1)
 # Users (2x) in Building 1
  ggplot(data = Building1) + geom_point(aes(x=LONGITUDE, y= LATITUDE, color=USERID)) + 
     facet_grid(. ~ FLOOR)
+ 
  
  
  # Number of Detected WAPS
@@ -156,3 +148,33 @@ plot_ly(Building1_11, x = ~LATITUDE, y = ~LONGITUDE, z = ~FLOOR, type = 'scatter
 
 
 
+#---------------------------------MODELING---------------------------------
+
+set.seed(123)
+
+
+# BUILDING--------------------------------####
+
+
+# Data Sample from "DataTraining1"
+
+Sample1 <- sample(1:nrow(DataTraining1), 3000)
+
+# create Sample Dataframe
+
+TrainingSample1 <- DataTraining1[Sample1,]
+
+inTraining <- createDataPartition (TrainingSample1$BUILDINGID, p = .80, list = FALSE)
+TrainingSample1T <- TrainingSample1[inTraining,]
+TestingSample1T <- TrainingSample1[-inTraining,]
+
+fitControl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
+
+
+
+#---- > KNN Building ----
+
+MODEL_KNN_Sample1 <- caret::train(BUILDINGID ~ ., data = TrainingSample1T[, c((1:465), (469:469))], 
+                           method = "knn", trControl = fitControl)
+
+print(MODEL_KNN_Sample1)
