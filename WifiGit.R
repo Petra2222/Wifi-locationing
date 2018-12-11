@@ -109,7 +109,6 @@ Building1_1 <- filter(Building1, USERID == 1)
     facet_grid(. ~ FLOOR)
  
  
- 
  # Number of Detected WAPS
  
  WAPSDT1 <- DataTraining1[,1:465]
@@ -147,7 +146,6 @@ plot_ly(Building1_11, x = ~LATITUDE, y = ~LONGITUDE, z = ~FLOOR, type = 'scatter
 
 
 
-
 #---------------------------------MODELING---------------------------------
 
 set.seed(123)
@@ -174,7 +172,40 @@ fitControl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
 
 #---- > KNN Building ----
 
-MODEL_KNN_Sample1 <- caret::train(BUILDINGID ~ ., data = TrainingSample1T[, c((1:465), (469:469))], 
+MODEL_KNN_Sample1 <- caret::train(BUILDINGID ~ ., data = TrainingSample1T[, c(1:465, 469)], 
                            method = "knn", trControl = fitControl)
 
 print(MODEL_KNN_Sample1)
+
+pred_KNN_building <- predict(MODEL_KNN_Sample1, TestingSample1T)
+postResample(pred_KNN_building, TestingSample1T$BUILDINGID) # Accuracy 0.9983306 Kappa 0.9973831
+confusionMatrix(TestingSample1T$BUILDINGID , pred_KNN_building)
+
+
+#---- > SVM Building ----
+
+MODEL_SVM_Sample1 <- train(BUILDINGID ~ ., data = TrainingSample2[, c((1:415), (419:419))], 
+                                  method = "svmLinear", trControl = fitControl)
+
+
+# Troubleshooting... need to remove NZV
+
+#TrainingSample2 <- TrainingSample1T
+#experiment <- nearZeroVar (TrainingSample2[,1:465], saveMetrics=TRUE)
+#TrainingSample2 <- TrainingSample2 [-which(experiment$zeroVar==TRUE)] # 476 to 426 variable
+
+
+print(MODEL_SVM_Sample1)
+
+pred_SVM_building <- predict(MODEL_SVM_Sample1, TestingSample1T)
+postResample(pred_SVM_building, TestingSample1T$BUILDINGID) # Accuracy 1 Kappa 1
+confusionMatrix(TestingSample1T$BUILDINGID , pred_SVM_building)
+
+
+
+
+
+
+
+
+
