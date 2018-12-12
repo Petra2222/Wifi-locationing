@@ -175,16 +175,18 @@ fitControl <- trainControl(method = "repeatedcv", number = 10, repeats = 3)
 MODEL_KNN_Sample1 <- caret::train(BUILDINGID ~ ., data = TrainingSample1T[, c(1:465, 469)], 
                            method = "knn", trControl = fitControl)
 
+plot(MODEL_KNN_Sample1)
+
 print(MODEL_KNN_Sample1)
 
 pred_KNN_building <- predict(MODEL_KNN_Sample1, TestingSample1T)
 postResample(pred_KNN_building, TestingSample1T$BUILDINGID) # Accuracy 0.9983306 Kappa 0.9973831
-confusionMatrix(TestingSample1T$BUILDINGID , pred_KNN_building)
+confusionMatrix(TestingSample1T$BUILDINGID, pred_KNN_building)
 
 
 #---- > SVM Building ----
 
-MODEL_SVM_Sample1 <- train(BUILDINGID ~ ., data = TrainingSample2[, c((1:415), (419:419))], 
+MODEL_SVM_Sample1 <- caret::train(BUILDINGID ~ ., data = TrainingSample2[, c((1:415), (419:419))], 
                                   method = "svmLinear", trControl = fitControl)
 
 
@@ -195,17 +197,27 @@ MODEL_SVM_Sample1 <- train(BUILDINGID ~ ., data = TrainingSample2[, c((1:415), (
 #TrainingSample2 <- TrainingSample2 [-which(experiment$zeroVar==TRUE)] # 476 to 426 variable
 
 
+plot(MODEL_SVM_Sample1)
+
 print(MODEL_SVM_Sample1)
 
 pred_SVM_building <- predict(MODEL_SVM_Sample1, TestingSample1T)
 postResample(pred_SVM_building, TestingSample1T$BUILDINGID) # Accuracy 1 Kappa 1
-confusionMatrix(TestingSample1T$BUILDINGID , pred_SVM_building)
+confusionMatrix(TestingSample1T$BUILDINGID, pred_SVM_building)
 
 
+#---- > Random Forest Building ----
+
+MODEL_RF_Sample1 <- caret::train(BUILDINGID ~ ., data = TrainingSample1T[, c(1:465, 469)], 
+                                  method = "rf", trControl = fitControl)
 
 
+plot(MODEL_RF_Sample1)
 
+print(MODEL_RF_Sample1)
 
-
+pred_RF_building <- predict(MODEL_RF_Sample1, TestingSample1T)
+postResample(pred_RF_building, TestingSample1T$BUILDINGID) # Accuracy 0.99666 Kappa 0.994760
+confusionMatrix(TestingSample1T$BUILDINGID, pred_RF_building)
 
 
